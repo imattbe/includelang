@@ -2,6 +2,7 @@ This is includelang, a compiled meme language designed to use the absolute worst
 
 These are some initial concepts of how includeLang will function (name in pascal case):
 
+```
 include as as as
 include datatypes.integers.unsigned.16bit as uint16
 include dataypes.integers.operators.equals as =
@@ -17,3 +18,4 @@ func 🤠 uint16 num1 uint16 num 2
   if num1 == num2
     printS "They're the same"
   num1 = 4
+```
