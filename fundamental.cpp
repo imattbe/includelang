@@ -47,11 +47,11 @@ int main(int argc, char** argv) {
 				std::cerr << "-o requires an argument\n";
 				return 1;
 			}
-		} else if (argv[i][0] != '-') {
+		} else if (argv[i][0] == '-') {
 			std::cerr << "unknown option: " << argv[i] << "\n";
 			return 1;
 		} else {
-			if (inputFileCount ==0) {
+			if (inputFileCount == 0) {
 				if (hasSuffix(argv[i], ".ilf")) {
 					inputName = argv[i];
 				} else {
@@ -71,7 +71,7 @@ int main(int argc, char** argv) {
 		std::cerr << "no input file specified\n";
 		return 1;
 	} else if (inputFileCount > 1) {
-		std::cerr << inputFileCount << " too many input files specified\n";
+		std::cerr << inputFileCount-1 << " too many input files specified\n";
 		return 1;
 	} 
 	else if (outputName.compare(inputName) == 0) {
