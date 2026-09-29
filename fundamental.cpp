@@ -3,8 +3,7 @@
 #include <sstream>
 #include <stdio.h>
 #include <string>
-using namespace std;
-bool hasSuffix(std::string name, std::string suffix) {
+bool hasSuffix(const std::string& name, const std::string& suffix) {
 	int suffixLen = suffix.length();
 	int nameLen = name.length();
 	if (nameLen > suffixLen && name.substr(nameLen-suffixLen,suffixLen).compare(suffix) == 0) {
@@ -15,62 +14,82 @@ bool hasSuffix(std::string name, std::string suffix) {
 }
 
 enum class TokenType {
-	IDENTIFIER,
-	KEYWORD,
-	NUMBER,
-	STRING,
-	OPERATOR,
-	DELIMITER,
-	COMMENT,
-	WHITESPACE,
-	UNKNOWN,
-	END_OF_FILE
+	PLUS,
+	STAR,
+	MINUS,
+	SLASH,
+	PRINT,
+	EQUALITY,
+	NUMBER
 };
 
 class LexerToken{
-	int line;
-	int character;
-	TokenType type;
-	std::string contents;
+	public:
+		int line;
+		int column;
+		TokenType type;
+		std::string contents;
 };
 
 int main(int argc, char** argv) {
-	cout << "hello world" << '\n';
-	
-	
-
-	std::string inputName = argv[1];
+	int inputFileCount = 0;
+	std::string inputName;
 	std::string outputName;
-	std::ifstream in(inputName);
+	
 
-	if (!in) { std::cerr << "could not open " << inputName << "\n"; return 1; }
-
-	for (int i = 2; i < argc; i++) {
+	// CLI argument parsing, add all other options before the input name.
+	for (int i = 1; i < argc; i++) {
 		if (std::string(argv[i]).compare("-o") == 0) {
 			if (i + 1 < argc) {
 				outputName = argv[i + 1];
 				i++;
 			} else {
-				std::cerr << "missing output file name after -o\n";
+				std::cerr << "-o requires an argument\n";
 				return 1;
 			}
+		} else if (argv[i][0] != '-') {
+			std::cerr << "unknown option: " << argv[i] << "\n";
+			return 1;
+		} else {
+			if (inputFileCount ==0) {
+				if (hasSuffix(argv[i], ".ilf")) {
+					inputName = argv[i];
+				} else {
+					std::cerr << "input file must have .ilf suffix\n";
+					return 1;
+				}
+			}
+			inputFileCount++;
 		}
+		
 	}
-
-	if (outputName.compare(inputName) == 0) {
-		std::cerr << "output file name cannot be the same as input file name\n";
-		return 2;
-	} else if (outputName.empty()) {
+	if (outputName.empty()) {
 		outputName = inputName + ".out";
 	}
+	
+	if (inputFileCount == 0) {
+		std::cerr << "no input file specified\n";
+		return 1;
+	} else if (inputFileCount > 1) {
+		std::cerr << inputFileCount << " too many input files specified\n";
+		return 1;
+	} 
+	else if (outputName.compare(inputName) == 0) {
+		std::cerr << "output file name cannot be the same as input file name\n";
+		return 1;
+	}
 
+
+	std::ifstream in(inputName);
+	if (!in) { std::cerr << "could not open " << inputName << "\n"; return 1; }
+	
 	std::stringstream buffer;
 	buffer << in.rdbuf();
 	std::string source = buffer.str();
 
 
-	FILE* out = fopen(outputName.c_str(), "w");
+	std::ofstream out(outputName);
 	if (!out) { std::cerr << "could not create " << outputName << "\n"; return 3; }
-	fclose(out);
+	out.close();
 	return 0;
 }
